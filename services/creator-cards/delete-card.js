@@ -38,7 +38,10 @@ async function deleteCard(serviceData) {
     const deletedTimestamp = Date.now();
     response = serializeCard({ ...card, deleted: deletedTimestamp }, { includeAccessCode: true });
   } catch (error) {
-    appLogger.errorX(error, 'delete-creator-card-error');
+    // Expected business rejections (NF01) are normal control flow.
+    if (!error.isApplicationError) {
+      appLogger.errorX(error, 'delete-creator-card-error');
+    }
     throw error;
   }
 

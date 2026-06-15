@@ -118,6 +118,33 @@ curl -X POST http://localhost:3000/creator-cards \
   }'
 ```
 
+## API documentation (Swagger)
+
+Interactive OpenAPI 3.0 docs are served by the running app:
+
+- **Swagger UI:** `GET /docs`
+- **Raw spec:** `GET /openapi.json`
+
+The spec source lives in [docs/openapi.js](./docs/openapi.js) and documents every request/response
+schema, example payloads, and the full error-code catalogue.
+
+## Testing
+
+Unit/integration tests run against the template's mock-model layer (`USE_MOCK_MODEL=1`),
+so **no database is required** to run them:
+
+```bash
+npm test
+```
+
+Coverage (25 specs in [test/](./test)) exercises all three services:
+
+- create: auto-slug, `id` mapping, private/public access-code rules (`AC01`/`AC05`),
+  duplicate slug (`SL02`), non-integer amount, malformed URL, field validation
+- get: `NF01`/`NF02`/`AC03`/`AC04`, access-code hidden on success
+- delete: soft-delete timestamp, owner verification (`NF01`), `creator_reference` length
+- helpers: slug/access-code validators, slugify bounds, serialization
+
 ## Deployment
 
 Deployed on Render/Heroku. The web process runs `node bootstrap.js` (see `Procfile`).

@@ -298,6 +298,10 @@ function Server(serverConfig = {}) {
     startServer,
     addHandler,
     executeRequest,
+    // Expose the underlying express app so additive, non-handler concerns
+    // (e.g. mounting the Swagger UI for API docs) can be attached before the
+    // server starts. Existing handler behaviour is unchanged.
+    app,
   };
 }
 module.exports = Server;

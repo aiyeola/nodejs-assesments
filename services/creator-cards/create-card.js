@@ -153,7 +153,11 @@ async function createCard(serviceData) {
 
     response = serializeCard(createdCard, { includeAccessCode: true });
   } catch (error) {
-    appLogger.errorX(error, 'create-creator-card-error');
+    // Only surface unexpected failures as errors; business-rule rejections
+    // (validation, SL02, AC01/AC05, ...) are expected control flow.
+    if (!error.isApplicationError) {
+      appLogger.errorX(error, 'create-creator-card-error');
+    }
     throw error;
   }
 

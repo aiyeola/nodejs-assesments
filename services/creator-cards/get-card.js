@@ -46,7 +46,10 @@ async function getCard(serviceData) {
 
     response = serializeCard(card, { includeAccessCode: false });
   } catch (error) {
-    appLogger.errorX(error, 'get-creator-card-error');
+    // Expected business rejections (NF01/NF02/AC03/AC04) are normal control flow.
+    if (!error.isApplicationError) {
+      appLogger.errorX(error, 'get-creator-card-error');
+    }
     throw error;
   }
 

@@ -89,4 +89,16 @@ ENDPOINT_CONFIGS.forEach((config) => {
   setupEndpointHandlers(config.path, config.options);
 });
 
+// API documentation: interactive Swagger UI at /docs, raw spec at /openapi.json.
+// Mounted before startServer() so it precedes the framework's 404 catcher.
+const swaggerUi = require('swagger-ui-express');
+const openapiDocument = require('./docs/openapi');
+
+server.app.get('/openapi.json', (_req, res) => res.json(openapiDocument));
+server.app.use(
+  '/docs',
+  swaggerUi.serve,
+  swaggerUi.setup(openapiDocument, { customSiteTitle: 'Creator Card API Docs' })
+);
+
 server.startServer();
