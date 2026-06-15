@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: creator-cards-api
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: node bootstrap.js
+    envVars:
+      - key: MONGODB_URI
+        sync: false
+      - key: PORT
+        value: 10000
+      - key: PINO_LOG_LEVEL
+        value: info
