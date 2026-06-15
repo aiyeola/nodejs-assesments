@@ -92,13 +92,26 @@ ENDPOINT_CONFIGS.forEach((config) => {
 // API documentation: interactive Swagger UI at /docs, raw spec at /openapi.json.
 // Mounted before startServer() so it precedes the framework's 404 catcher.
 const swaggerUi = require('swagger-ui-express');
-const openapiDocument = require('./docs/openapi');
+const buildOpenApiDocument = require('./docs/openapi');
 
-server.app.get('/openapi.json', (_req, res) => res.json(openapiDocument));
+// Resolve the base URL the app is reached at, honouring the proxy headers set
+// by Railway/Render (the framework doesn't enable Express "trust proxy").
+function resolveBaseUrl(req) {
+  if (process.env.APP_BASE_URL) return process.env.APP_BASE_URL;
+  const proto = (req.headers['x-forwarded-proto'] || req.protocol || 'http').split(',')[0].trim();
+  const host = req.headers['x-forwarded-host'] || req.get('host');
+  return `${proto}://${host}`;
+}
+
+server.app.get('/openapi.json', (req, res) => res.json(buildOpenApiDocument(resolveBaseUrl(req))));
 server.app.use(
   '/docs',
-  swaggerUi.serve,
-  swaggerUi.setup(openapiDocument, { customSiteTitle: 'Creator Card API Docs' })
+  (req, _res, next) => {
+    req.swaggerDoc = buildOpenApiDocument(resolveBaseUrl(req));
+    next();
+  },
+  swaggerUi.serveFiles(undefined, { customSiteTitle: 'Creator Card API Docs' }),
+  swaggerUi.setup(undefined, { customSiteTitle: 'Creator Card API Docs' })
 );
 
 server.startServer();
